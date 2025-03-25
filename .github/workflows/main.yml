@@ -3,8 +3,12 @@ on: push
 jobs:
   run-compile:
     runs-on: ubuntu-latest
+    container: rootproject/root:6.26.10-conda
     steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
       - name: compile-skim
         run: |
           COMPILER=$(root-config --cxx)
-          $COMPILER -g -O3 -Wall -Wextra -Wpedantic -o skim skim.cxx
+          FLAGS=$(root-config --cflags --libs)
+          $COMPILER -g -O3 -Wall -Wextra -Wpedantic -o skim skim.cxx $FLAGS
