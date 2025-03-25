@@ -1,0 +1,10 @@
+name: example
+on: push
+jobs:
+  run-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: compile-skim
+        run: |
+          COMPILER=$(root-config --cxx)
+          $COMPILER -g -O3 -Wall -Wextra -Wpedantic -o skim skim.cxx
