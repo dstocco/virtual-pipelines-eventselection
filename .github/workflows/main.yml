@@ -1,0 +1,97 @@
+name: build image example
+on: push
+jobs:
+  build_image:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+      # - name: build image
+      #   run: podman build -f Docker -t htautau:latest .
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  skim:
+    needs: build_image
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}:docker
+    steps:
+      - name: access control
+        run: echo ${{ secrets.USER_PASS }} | kinit ${{ secrets.USER_NAME }}@CERN.CH
+
+      - name: skim
+        run: |
+          ./skim root://eospublic.cern.ch//eos/root-eos/HiggsTauTauReduced/GluGluToHToTauTau.root skim_ggH.root 19.6 11467.0 0.1 > skim_ggH.log
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: skim_ggH
+          path: skim_ggH.*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: skim_ggH_log
+          path: skim_ggH.log
+
+  plot:
+    needs: skim
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}:docker
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: skim_ggH
+
+      - name: plot
+        run: python histograms.py skim_ggH.root ggH hist_ggH.root
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: histograms
+          path: hist_ggH.root
+
+  test_ggH:
+    needs: plot
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}:docker
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: skim_ggH_log
+
+      - name: test log
+        run: python tests/test_cutflow_ggH.py
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: histograms
+
+      - name: test plot
+        run: python tests/test_plot_ggH.py
