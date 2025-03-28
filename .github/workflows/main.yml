@@ -69,7 +69,7 @@ jobs:
           name: skim_ggH
 
       - name: plot
-        run: python histograms.py skim_ggH.root ggH hist_ggH.root
+        run: python /home/analysis/histograms.py skim_ggH.root ggH hist_ggH.root
 
       - uses: actions/upload-artifact@v4
         with:
@@ -87,11 +87,11 @@ jobs:
           name: skim_ggH_log
 
       - name: test log
-        run: python tests/test_cutflow_ggH.py
+        run: python /home/analysis/tests/test_cutflow_ggH.py
 
       - uses: actions/download-artifact@v4
         with:
           name: histograms
 
       - name: test plot
-        run: python tests/test_plot_ggH.py
+        run: python /home/analysis/tests/test_plot_ggH.py
