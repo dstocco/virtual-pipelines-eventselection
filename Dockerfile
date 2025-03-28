@@ -23,3 +23,5 @@ RUN COMPILER=$(root-config --cxx) && \
 
 # This sets the default working directory when a container is launched from the image
 WORKDIR /home/analysis
+
+CMD ["/bin/bash"]
