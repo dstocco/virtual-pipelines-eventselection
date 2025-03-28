@@ -3,7 +3,9 @@
 # Specify the base image that we're building the image on top of
 FROM rootproject/root:6.26.10-conda
 
-COPY skim.* ./
+WORKDIR /home/analysis
+
+COPY . /home/analysis
 
 RUN COMPILER=$(root-config --cxx) && \
     FLAGS=$(root-config --cflags --libs) && \
@@ -20,4 +22,4 @@ RUN COMPILER=$(root-config --cxx) && \
 # RUN pip install --no-cache-dir -q scikit-learn
 
 # This sets the default working directory when a container is launched from the image
-WORKDIR /home/docker
+WORKDIR /home/analysis
