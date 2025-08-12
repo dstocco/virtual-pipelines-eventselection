@@ -27,7 +27,7 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: skim_exe
 
@@ -57,7 +57,7 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: skim_ggH
 
@@ -77,14 +77,14 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: skim_ggH_log
 
       - name: test log
         run: python tests/test_cutflow_ggH.py
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: histograms
 
